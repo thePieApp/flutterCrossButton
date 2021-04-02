@@ -65,27 +65,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _disableButtons(){
-    overlayButtonsWidget.setExist(false, Offset.zero, buttonSize, buttonSpacing);
-  }
-
-  void showCrossButton(TapDownDetails details) {
-    _updateTapID();
-    int currentTapID = _tapID;
-    _tapPosition = details.globalPosition;
-    Future.delayed(const Duration(milliseconds: 250), () { // 250 is just temporary value
-      if (_tapID == currentTapID) {
-      _showButtons();
-      }
-    });
-  }
-
-  void disableShowButtonforFastMoves(DragUpdateDetails details) {
-    _updateTapID();
-  }
-
-  void cancelShowCrossButton(TapUpDetails details){
-    _updateTapID();
-    _disableButtons();
+    if (overlayButtonsWidget.isExist()){
+      overlayButtonsWidget.setExist(false, Offset.zero, buttonSize, buttonSpacing);
+    }
   }
 
   // nagivate to example route
@@ -101,13 +83,16 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void navigateOnSelectedButtonValue(){
+  void navigateOnSelectedButtonValue(DragEndDetails){
     _updateTapID();
     _navigate();
     _disableButtons();
   }
 
   void updateSelectedButton(LongPressMoveUpdateDetails details){
+    if (!overlayButtonsWidget.isExist()){
+      return;
+    }
     Offset offset = details.globalPosition;
     double cx = _tapPosition.dx;
     double cy = _tapPosition.dy;
@@ -132,34 +117,68 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  showCrossButton(LongPressStartDetails details){
+    _tapPosition = details.globalPosition;
+    _showButtons();
+  }
+
     @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       // our code
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTapDown: showCrossButton,
-        onTapUp: cancelShowCrossButton,
+        onLongPressStart: showCrossButton,
         onLongPressMoveUpdate: updateSelectedButton,
-        onLongPressUp: navigateOnSelectedButtonValue,
-        onPanUpdate: disableShowButtonforFastMoves,
+        onLongPressEnd: navigateOnSelectedButtonValue,
         child: Stack(
           children: [
             // demo code, not our code
             Container(
               color: Colors.black12,
               child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'You have pushed the button this many times:',
-                    ),
-                    Text(
-                      '$_counter',
-                      style: Theme.of(context).textTheme.headline4,
-                    ),
-                  ],
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      SizedBox(
+                        width: 200,
+                        height: 200,
+                        child: Container(
+                          color: Colors.red,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 200,
+                        height: 200,
+                        child: Container(
+                          color: Colors.green,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 200,
+                        height: 200,
+                        child: Container(
+                          color: Colors.blue,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 200,
+                        height: 200,
+                        child: Container(
+                          color: Colors.purple,
+                        ),
+                      ),
+                      Text(
+                        'You have pushed the button this many times:',
+                      ),
+                      Text(
+                        '$_counter',
+                        style: Theme.of(context).textTheme.headline4,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

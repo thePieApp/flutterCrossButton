@@ -14,6 +14,10 @@ class OverlayButtons extends StatefulWidget {
     _key.currentState.selectButton(selected);
   }
 
+  bool isExist() {
+    return !_key.currentState.widgetOffstage;
+  }
+
   @override
   _OverlayButtonsState createState() => _OverlayButtonsState();
 }
@@ -63,33 +67,33 @@ class _OverlayButtonsState extends State<OverlayButtons> {
 
     int buttonOffset = widgetSize+spacing;
     return Positioned(
-      left: widgetPosition == null? 0 : widgetPosition.dx-widgetSize/2.0,
-      top: widgetPosition == null? 0 : widgetPosition.dy-widgetSize/2.0,
-      child: Offstage(
-        offstage: widgetOffstage,
-        child: Container(
-          child: Stack(
-            children: [
-              buttonItem(1, -2, -buttonOffset, widgetSize, 'assets/Group 48.svg', 'assets/Group 48 fill.svg'),
-              buttonItem(2, 2 -buttonOffset, 0, widgetSize, 'assets/Group 49.svg', 'assets/Group 49 fill.svg'),
-              buttonItem(3, -2, buttonOffset, widgetSize, 'assets/Group 50.svg', 'assets/Group 50 fill.svg'),
-              buttonItem(4, buttonOffset+2, 0, widgetSize, 'assets/Group 51.svg', 'assets/Group 51 fill.svg'),
-              Container(
-                width: widgetSize.toDouble(),
-                height: widgetSize.toDouble(),
-                decoration: BoxDecoration(
-                    border: Border.all(
-                      width: 2.5,
-                      color: Colors.white,
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(widgetSize.toDouble()))
-                ),
-              )
-            ],
-          ),
+    left: widgetPosition == null? 0 : widgetPosition.dx-widgetSize/2.0,
+    top: widgetPosition == null? 0 : widgetPosition.dy-widgetSize/2.0,
+    child: Offstage(
+      offstage: widgetOffstage,
+      child: Container(
+        child: Stack(
+          children: [
+            buttonItem(1, -2, -buttonOffset, widgetSize, 'assets/Group 48.svg', 'assets/Group 48 fill.svg'),
+            buttonItem(2, 2 -buttonOffset, 0, widgetSize, 'assets/Group 49.svg', 'assets/Group 49 fill.svg'),
+            buttonItem(3, -2, buttonOffset, widgetSize, 'assets/Group 50.svg', 'assets/Group 50 fill.svg'),
+            buttonItem(4, buttonOffset+2, 0, widgetSize, 'assets/Group 51.svg', 'assets/Group 51 fill.svg'),
+            Container(
+              width: widgetSize.toDouble(),
+              height: widgetSize.toDouble(),
+              decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 2.5,
+                    color: Colors.white,
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(widgetSize.toDouble()))
+              ),
+            )
+          ],
         ),
       ),
-    );
+    ),
+      );
   }
 }
 
