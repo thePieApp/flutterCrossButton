@@ -50,13 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Offset _tapPosition; // the position of finger press
   int buttonSize = 50; // the size of button, TODO variable shape according to phone screen size
   int buttonSpacing = 20; // how far the button should be apart from each other TODO scale according to button size
-
-  int _tapID = 0; // a counter to check whether the showButton function still need to execute
   int selectedButton = 0; // the button selected
-
-  void _updateTapID(){
-    _tapID = _tapID>1000? 0 : _tapID + 1; // update tapID, if it is too big, set to 0
-  }
 
   void _showButtons(){
     setState(() {
@@ -84,7 +78,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void navigateOnSelectedButtonValue(DragEndDetails){
-    _updateTapID();
     _navigate();
     _disableButtons();
   }
