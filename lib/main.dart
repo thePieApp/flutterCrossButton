@@ -5,7 +5,7 @@ import 'new_route/route2.dart';
 import 'new_route/route3.dart';
 import 'new_route/route4.dart';
 import 'overlay.dart';
-import 'dart:core';
+import 'package:fluttertoast/fluttertoast.dart';
 
 void main() {
   runApp(MyApp());
@@ -37,42 +37,46 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  // demo code
-  int _counter = 0;
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  bool liked_you = false;
 
   // our code
   final overlayButtonsWidget = OverlayButtons(GlobalKey()); // the cross button widget
   Offset _tapPosition; // the position of finger press
   int buttonSize = 50; // the size of button, TODO variable shape according to phone screen size
   int buttonSpacing = 20; // how far the button should be apart from each other TODO scale according to button size
-  int selectedButton = 0; // the button selected
 
   void _showButtons(){
     setState(() {
-      overlayButtonsWidget.setExist(true, _tapPosition, buttonSize, buttonSpacing);
+      overlayButtonsWidget.setExist(true, _tapPosition, buttonSize, buttonSpacing, liked_you);
     });
   }
 
   void _disableButtons(){
     if (overlayButtonsWidget.isExist()){
-      overlayButtonsWidget.setExist(false, Offset.zero, buttonSize, buttonSpacing);
+      overlayButtonsWidget.setExist(false, Offset.zero, buttonSize, buttonSpacing, liked_you);
+    }
+  }
+
+  showCrossButton(LongPressStartDetails details){
+    _tapPosition = details.globalPosition;
+    _showButtons();
+  }
+
+  void updateSelectedButton(LongPressMoveUpdateDetails details){
+    if (overlayButtonsWidget.isExist()){
+      overlayButtonsWidget.selectButton(details);
     }
   }
 
   // nagivate to example route
   void _navigate(){
-    if (selectedButton == 1){
+    if (overlayButtonsWidget.getSelectedButton() == 1){
       Navigator.push(context, MaterialPageRoute(builder: (context)=> Route1()));
-    } else if (selectedButton == 2) {
+    } else if (overlayButtonsWidget.getSelectedButton() == 2) {
       Navigator.push(context, MaterialPageRoute(builder: (context)=> Route2()));
-    } else if (selectedButton == 3) {
+    } else if (overlayButtonsWidget.getSelectedButton() == 3) {
       Navigator.push(context, MaterialPageRoute(builder: (context)=> Route3()));
-    } else if (selectedButton == 4) {
+    } else if (overlayButtonsWidget.getSelectedButton() == 4) {
       Navigator.push(context, MaterialPageRoute(builder: (context)=> Route4()));
     }
   }
@@ -80,39 +84,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void navigateOnSelectedButtonValue(DragEndDetails){
     _navigate();
     _disableButtons();
-  }
-
-  void updateSelectedButton(LongPressMoveUpdateDetails details){
-    if (!overlayButtonsWidget.isExist()){
-      return;
-    }
-    Offset offset = details.globalPosition;
-    double cx = _tapPosition.dx;
-    double cy = _tapPosition.dy;
-    double areaOfTouch = buttonSize/2;
-    int buttonDistanceFromFingerPress = buttonSize + buttonSpacing;
-    // for the button to be selected, the distance of the finger tip from the button center needs to be less than a value
-    if ( (cx -2 - offset.dx).abs() < areaOfTouch && (cy - buttonDistanceFromFingerPress - offset.dy).abs() < areaOfTouch ) {
-      selectedButton = 1;
-      overlayButtonsWidget.selectButton(1);
-    } else if ( (cx + 2 - buttonDistanceFromFingerPress - offset.dx).abs() < areaOfTouch && (cy - offset.dy).abs() < areaOfTouch ){
-      selectedButton = 2;
-      overlayButtonsWidget.selectButton(2);
-    } else if  ( (cx -2 - offset.dx).abs() < areaOfTouch && (cy + buttonDistanceFromFingerPress - offset.dy).abs() < areaOfTouch ) {
-      selectedButton = 3;
-      overlayButtonsWidget.selectButton(3);
-    } else if  ( (cx + 2 + buttonDistanceFromFingerPress - offset.dx).abs() < areaOfTouch && (cy - offset.dy).abs() < areaOfTouch ) {
-      selectedButton = 4;
-      overlayButtonsWidget.selectButton(4);
-    } else {
-      selectedButton = 0;
-      overlayButtonsWidget.selectButton(0);
-    }
-  }
-
-  showCrossButton(LongPressStartDetails details){
-    _tapPosition = details.globalPosition;
-    _showButtons();
   }
 
     @override
@@ -167,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         'You have pushed the button this many times:',
                       ),
                       Text(
-                        '$_counter',
+                        '$liked_you',
                         style: Theme.of(context).textTheme.headline4,
                       ),
                     ],
@@ -181,8 +152,21 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
+        onPressed: (){
+          setState(() {
+            liked_you=!liked_you;
+          });
+          Fluttertoast.showToast(
+              msg: liked_you ? "The Person Likes You Now" : "The Person Does Not Like You Now",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0
+          );
+        },
+        tooltip: 'Change liked you',
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );

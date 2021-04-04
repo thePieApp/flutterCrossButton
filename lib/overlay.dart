@@ -6,17 +6,32 @@ class OverlayButtons extends StatefulWidget {
   final GlobalKey<_OverlayButtonsState> _key;
   OverlayButtons(this._key): super(key: _key);
 
-  setExist(bool exist, Offset position, int buttonSize, int buttonSpacing){
-    _key.currentState.setExist(exist, position, buttonSize, buttonSpacing);
+  void setExist(bool exist, Offset position, int buttonSize, int buttonSpacing, bool likedYou){
+    _key.currentState.setExist(exist, position, buttonSize, buttonSpacing, likedYou);
   }
 
-  selectButton(int selected){
-    _key.currentState.selectButton(selected);
+  void selectButton(LongPressMoveUpdateDetails details){
+    Offset offset = details.globalPosition;
+    double cx = _key.currentState.widgetPosition.dx;
+    double cy = _key.currentState.widgetPosition.dy;
+    double areaOfTouch = _key.currentState.widgetSize/2;
+    int buttonDistanceFromFingerPress = _key.currentState.widgetSize + _key.currentState.spacing;
+    // for the button to be selected, the distance of the finger tip from the button center needs to be less than a value
+    if ( (cx -2 - offset.dx).abs() < areaOfTouch && (cy - buttonDistanceFromFingerPress - offset.dy).abs() < areaOfTouch && !_key.currentState.likedUser) {
+      _key.currentState.selectButton(1);
+    } else if ( (cx + 2 - buttonDistanceFromFingerPress - offset.dx).abs() < areaOfTouch && (cy - offset.dy).abs() < areaOfTouch ){
+      _key.currentState.selectButton(2);
+    } else if  ( (cx -2 - offset.dx).abs() < areaOfTouch && (cy + buttonDistanceFromFingerPress - offset.dy).abs() < areaOfTouch  && !_key.currentState.likedUser) {
+      _key.currentState.selectButton(3);
+    } else if  ( (cx + 2 + buttonDistanceFromFingerPress - offset.dx).abs() < areaOfTouch && (cy - offset.dy).abs() < areaOfTouch ) {
+      _key.currentState.selectButton(4);
+    } else {
+      _key.currentState.selectButton(0);
+    }
   }
 
-  bool isExist() {
-    return !_key.currentState.widgetOffstage;
-  }
+  int getSelectedButton() => _key.currentState.buttonSelected;
+  bool isExist() => !_key.currentState.widgetOffstage;
 
   @override
   _OverlayButtonsState createState() => _OverlayButtonsState();
@@ -25,19 +40,21 @@ class OverlayButtons extends StatefulWidget {
 class _OverlayButtonsState extends State<OverlayButtons> {
 
   bool widgetOffstage = true;
-  var widgetPosition;
+  Offset widgetPosition;
   int buttonSelected = 0;
 
   int widgetSize = 50;
   int spacing = 20;
+  bool likedUser = false;
 
   // method to make the cross buttons exists to user
-  setExist(bool exist, Offset position, int buttonSize, int buttonSpacing){
+  setExist(bool exist, Offset position, int buttonSize, int buttonSpacing, bool likedYou){
     setState(() {
       widgetOffstage = !exist;
       widgetPosition = position;
       widgetSize = buttonSize;
       spacing = buttonSpacing;
+      likedUser = likedYou;
     });
   }
 
@@ -74,9 +91,9 @@ class _OverlayButtonsState extends State<OverlayButtons> {
       child: Container(
         child: Stack(
           children: [
-            buttonItem(1, -2, -buttonOffset, widgetSize, 'assets/Group 48.svg', 'assets/Group 48 fill.svg'),
+            likedUser? Container() : buttonItem(1, -2, -buttonOffset, widgetSize, 'assets/Group 48.svg', 'assets/Group 48 fill.svg'),
             buttonItem(2, 2 -buttonOffset, 0, widgetSize, 'assets/Group 49.svg', 'assets/Group 49 fill.svg'),
-            buttonItem(3, -2, buttonOffset, widgetSize, 'assets/Group 50.svg', 'assets/Group 50 fill.svg'),
+            likedUser? Container() : buttonItem(3, -2, buttonOffset, widgetSize, 'assets/Group 50.svg', 'assets/Group 50 fill.svg'),
             buttonItem(4, buttonOffset+2, 0, widgetSize, 'assets/Group 51.svg', 'assets/Group 51 fill.svg'),
             Container(
               width: widgetSize.toDouble(),
